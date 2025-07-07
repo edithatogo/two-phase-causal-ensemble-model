@@ -6,7 +6,12 @@
     - [X] Item 2: Basic Project Files - (`pyproject.toml` exists, `LICENSE` exists, `chronus_causus/README.md` created). (Status: Completed)
     - [ ] Item 3: Testing Framework setup - `pytest` in dev dependencies, `tests/` dir exists. Further configuration/validation when first tests for `chronus_causus` are written. (Status: Partially complete)
 - [ ] **Phase 1: Base Causal Discovery Algorithms**
-    - [ ] CCM: Implement `CCMDiscoverer` (`chronus_causus/methods/ccm.py`)
+    - [ ] **CCM: Implement `CCMDiscoverer` (`chronus_causus/methods/ccm.py`)**
+        - [X] Create `ccm.py` with class structure. (Completed)
+        - [X] Analyze `demostration/utilities_ccm.py`. (Completed)
+        - [ ] Add identified parameters to `CCMDiscoverer.__init__`.
+        - [ ] Implement `CCMDiscoverer.fit()` method based on `model_ccm` from `utilities_ccm.py`.
+        - [ ] Add unit tests for `CCMDiscoverer`.
     - [ ] NTE: Implement `NTEDiscoverer` (`chronus_causus/methods/nte.py`)
     - [ ] PCMCI+: Implement `PCMCIDiscoverer`
     - [ ] GC: Implement `GCDiscoverer`
