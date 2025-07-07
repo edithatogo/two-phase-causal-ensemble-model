@@ -35,3 +35,15 @@
     - Updated `CCMDiscoverer.__init__` with new parameters (`split_percent`, `max_lib_size_iter`, `convergence_error_num`, `convergence_threshold`).
     - Implemented initial part of `CCMDiscoverer.fit()`: input validation, time series embedding, feature pair iteration, and train/test splitting.
     - Updated `chronus_causus/todo.md` to reflect progress.
+- **Commit:** `feat: Update CCMDiscoverer params and initial fit structure` (branch `feat/ccm-fit-structure`)
+
+## Session: 2024-07-25 (Continued)
+- **User Request:** Continue CCM `fit` method implementation.
+- **Agent Actions:**
+    - Set new plan to implement core CCM logic, convergence, and matrix population.
+    - Added `_error()` static method to `CCMDiscoverer`.
+    - Implemented core `skccm` calls (`CCM()`, `fit()`, `predict()`, `score()`) in `CCMDiscoverer.fit()`.
+    - Implemented convergence check logic for scores in `fit()`.
+    - Implemented population of `self.causal_matrix_` in `fit()`.
+    - Ensured `math` import.
+    - Updated `chronus_causus/todo.md` to mark `fit()` method as complete.

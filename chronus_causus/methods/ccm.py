@@ -3,6 +3,7 @@
 """Convergent Cross Mapping (CCM) Causal Discovery Method."""
 
 import numpy as np
+import math # Added for math.isnan
 # Potentially: from sklearn.base import BaseEstimator
 
 class CCMDiscoverer: # Could inherit from BaseEstimator later
@@ -71,6 +72,25 @@ class CCMDiscoverer: # Could inherit from BaseEstimator later
         self.feature_names_in_ = None
         self.n_features_in_ = 0
         # Initialize other attributes
+
+    @staticmethod
+    def _error(a, b):
+        """
+        Relative error to determine convergence.
+        Adapted from demostration/utilities_ccm.py.
+        """
+        # Handles cases where 'a' can be zero, causing ZeroDivisionError.
+        # If 'a' is zero, relative error is problematic.
+        # If both a and b are zero, error is 0. If a is zero and b is not, error is effectively infinite (or very large).
+        # The original code implies if a is zero, error is large (or NaN handled later).
+        # Let's ensure 'a' isn't zero before division.
+        if a == 0:
+            if b == 0:
+                return 0.0  # No difference
+            else:
+                return np.inf # Or a very large number, signifies large difference
+        err = abs((a - b) / a)
+        return err
 
     def _validate_input(self, X: np.ndarray):
         if not isinstance(X, np.ndarray):
@@ -162,22 +182,113 @@ class CCMDiscoverer: # Could inherit from BaseEstimator later
                 embedded_ts1, embedded_ts2, percent=self.split_percent
             )
 
-            # TODO:
-            # 1. Initialize skccm.CCM()
-            # 2. Define library lengths (lib_lens)
-            # 3. Fit CCM: CCM.fit(x1tr, x2tr)
-            # 4. Predict: x1p, x2p = CCM.predict(x1te, x2te, lib_lengths=lib_lens)
-            # 5. Get scores: sc1, sc2 = CCM.score()
-            # 6. Implement convergence check (using self.convergence_error_num, self.convergence_threshold)
-            # 7. Populate self.causal_matrix_ based on converged scores.
-            #    Remember: causal_matrix_[effect, cause] = strength
-            #    If sc1 (X2->X1) is significant, causal_matrix_[feat_idx1, feat_idx2] = sc1_converged
-            #    If sc2 (X1->X2) is significant, causal_matrix_[feat_idx2, feat_idx1] = sc2_converged
+            # Initialize skccm.CCM
+            # Ensure skccm was imported as ccm_sk earlier or handle import here
+            if 'ccm_sk' not in locals() and 'ccm_sk' not in globals():
+                try:
+                    import skccm as ccm_sk
+                except ImportError:
+                    raise ImportError("skccm library is required for CCMDiscoverer. Please install it.")
 
-            # Placeholder for further implementation
-            # print(f"Processing pair: ({self.feature_names_in_[feat_idx1]}, {self.feature_names_in_[feat_idx2]})")
-            # print(f"  x1tr shape: {x1tr.shape}, x2tr shape: {x2tr.shape}")
-            # print(f"  x1te shape: {x1te.shape}, x2te shape: {x2te.shape}")
+            ccm_instance = ccm_sk.CCM()
+
+            # Define library lengths (lib_lens)
+            len_tr = len(x1tr) # Length of the training set for the first series
+
+            # Ensure len_tr is sufficient for lib_lens generation
+            # The original demo starts lib_lens from 20.
+            # max_lib_size_iter should not lead to a step of 0 or negative.
+            if len_tr < 20 or self.max_lib_size_iter <= 0:
+                print(f"Skipping pair ({feat_idx1}, {feat_idx2}) due to insufficient training length ({len_tr}) for lib_lens generation.")
+                continue
+
+            # Calculate step ensuring it's at least 1, or handle small len_tr
+            step = len_tr / self.max_lib_size_iter
+            if step < 1: # If len_tr is smaller than max_lib_size_iter, iterate one by one
+                step = 1
+                # Adjust max_lib_size_iter to avoid very long computations if len_tr is small
+                # This part might need refinement based on skccm behavior with small lib_lens steps
+                # For now, let's cap iterations if step becomes 1.
+                # effective_iters = len_tr - 20 + 1 # Iterate up to full library
+
+            # Ensure the start of lib_lens (e.g., 20) is less than len_tr
+            lib_lens_start = 20
+            if lib_lens_start >= len_tr:
+                 print(f"Skipping pair ({feat_idx1}, {feat_idx2}) as lib_lens_start ({lib_lens_start}) >= len_tr ({len_tr}).")
+                 continue
+
+            lib_lens = np.arange(lib_lens_start, len_tr, step, dtype='int')
+            if len(lib_lens) == 0: # If arange results in empty, add at least one point if possible
+                if len_tr > lib_lens_start:
+                    lib_lens = np.array([min(len_tr-1, lib_lens_start + int(step))]) # ensure one step if possible
+                else: # Cannot form a valid lib_lens
+                    print(f"Skipping pair ({feat_idx1}, {feat_idx2}) due to inability to form lib_lens.")
+                    continue
+            if lib_lens[-1] < len_tr - step : # Ensure the last point is close to len_tr
+                 lib_lens = np.append(lib_lens, len_tr-1)
+
+
+            # Fit CCM
+            ccm_instance.fit(x1tr, x2tr)
+
+            # Predict
+            # Note: predict can sometimes fail if lib_lengths are too large relative to test set,
+            # or if test sets are too small. skccm might have internal checks.
+            try:
+                x1p, x2p = ccm_instance.predict(x1te, x2te, lib_lengths=lib_lens)
+            except Exception as e:
+                print(f"CCM predict failed for pair ({feat_idx1}, {feat_idx2}): {e}. Skipping.")
+                continue
+
+            # Get scores
+            # sc1: X2 -> X1 (how well X1_test is predicted using X2_train library)
+            # sc2: X1 -> X2 (how well X2_test is predicted using X1_train library)
+            sc1, sc2 = ccm_instance.score()
+
+            # Convergence Check
+            final_sc1 = 0.0
+            if len(sc1) >= self.convergence_error_num:
+                errors1 = []
+                for j in range(self.convergence_error_num - 1):
+                    err_val = self._error(sc1[-(j + 1)], sc1[-(j + 2)])
+                    errors1.append(10.0 if math.isnan(err_val) or np.isinf(err_val) else err_val)
+
+                if np.max(errors1) < self.convergence_threshold and sc1[-1] >= 1e-4:
+                    final_sc1 = np.mean(sc1[-(self.convergence_error_num // 2):]) # Avg last half of convergence window
+                    # Original demo used last 3: (sc1[-1] + sc1[-2] + sc1[-3]) / 3
+                    # Using a portion of convergence_error_num for averaging might be more robust.
+                    # For simplicity and consistency with demo, let's use last 3 if available, else fewer.
+                    num_avg_points1 = min(3, len(sc1))
+                    final_sc1 = np.mean(sc1[-num_avg_points1:])
+
+
+            final_sc2 = 0.0
+            if len(sc2) >= self.convergence_error_num:
+                errors2 = []
+                for j in range(self.convergence_error_num - 1):
+                    err_val = self._error(sc2[-(j + 1)], sc2[-(j + 2)])
+                    errors2.append(10.0 if math.isnan(err_val) or np.isinf(err_val) else err_val)
+
+                if np.max(errors2) < self.convergence_threshold and sc2[-1] >= 1e-4:
+                    num_avg_points2 = min(3, len(sc2))
+                    final_sc2 = np.mean(sc2[-num_avg_points2:])
+
+            # Populate causal matrix based on converged scores
+            # sc1 relates to X2 -> X1 (effect_idx=feat_idx1, cause_idx=feat_idx2)
+            # sc2 relates to X1 -> X2 (effect_idx=feat_idx2, cause_idx=feat_idx1)
+            if final_sc1 > final_sc2 and final_sc1 > 0:
+                self.causal_matrix_[feat_idx1, feat_idx2] = round(final_sc1, 4)
+            elif final_sc2 > final_sc1 and final_sc2 > 0:
+                self.causal_matrix_[feat_idx2, feat_idx1] = round(final_sc2, 4)
+
+            # If scores are equal and positive, or one is zero, no causal link is asserted here by this logic.
+            # The original demo code implies this exclusivity.
+
+            # print(f"Processed pair: ({self.feature_names_in_[feat_idx1]}, {self.feature_names_in_[feat_idx2]})")
+            # print(f"  Scores raw sc1: {sc1}, sc2: {sc2}")
+            # print(f"  Converged sc1: {final_sc1}, Converged sc2: {final_sc2}")
+            # print(f"  Updated causal_matrix_[{feat_idx1}, {feat_idx2}]: {self.causal_matrix_[feat_idx1, feat_idx2]}")
+            # print(f"  Updated causal_matrix_[{feat_idx2}, {feat_idx1}]: {self.causal_matrix_[feat_idx2, feat_idx1]}")
 
 
         return self

@@ -10,7 +10,7 @@
         - [X] Create `ccm.py` with class structure. (Completed)
         - [X] Analyze `demostration/utilities_ccm.py`. (Completed)
         - [X] Add identified parameters to `CCMDiscoverer.__init__`. (Completed)
-        - [ ] Implement `CCMDiscoverer.fit()` method based on `model_ccm` from `utilities_ccm.py`. (In Progress: Initial structure, embedding, and train/test split done. Core CCM logic, scoring, convergence pending).
+        - [X] Implement `CCMDiscoverer.fit()` method based on `model_ccm` from `utilities_ccm.py`. (Completed: Core logic including skccm calls, convergence check, and causal matrix population).
         - [ ] Add unit tests for `CCMDiscoverer`.
     - [ ] NTE: Implement `NTEDiscoverer` (`chronus_causus/methods/nte.py`)
     - [ ] PCMCI+: Implement `PCMCIDiscoverer`
