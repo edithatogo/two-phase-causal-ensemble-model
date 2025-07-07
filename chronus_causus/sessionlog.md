@@ -47,3 +47,23 @@
     - Implemented population of `self.causal_matrix_` in `fit()`.
     - Ensured `math` import.
     - Updated `chronus_causus/todo.md` to mark `fit()` method as complete.
+- **Commit:** `feat: Implement CCMDiscoverer fit method core logic` (branch `feat/ccm-fit-logic-complete`)
+
+## Session: 2024-07-25 (Continued)
+- **User Request:** Add unit tests for `CCMDiscoverer`.
+- **Agent Actions:**
+    - Set new plan for creating `test_ccm.py` and adding initial test cases.
+    - Created `chronus_causus/tests/test_ccm.py` with basic structure.
+    - Implemented `test_instantiation`, `test_error_method`, and `test_validate_input`.
+    - Implemented `test_fit_runs_basic` to check `fit` method execution and attribute setting.
+    - Updated `chronus_causus/todo.md` to reflect unit test progress.
+    - Attempted to run tests, failed due to missing dependencies (numpy).
+    - Revised plan to include `pip install ./chronus_causus`.
+    - `pip install` failed due to invalid URLs in `pyproject.toml`.
+    - Updated `pyproject.toml` with example.com URLs.
+    - `pip install` failed again due to invalid author email format in `pyproject.toml`.
+    - Updated `pyproject.toml` with example author info.
+    - `pip install` failed again due to `skccm>=0.1.3` not found.
+    - Updated `pyproject.toml` to `skccm>=0.2.dev0`.
+    - `pip install ./chronus_causus` succeeded.
+    - Ran unit tests: `python -m unittest chronus_causus/tests/test_ccm.py` - All 4 tests passed.
