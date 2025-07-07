@@ -26,3 +26,12 @@
     - Created `chronus_causus/methods/ccm.py` with `CCMDiscoverer` class structure.
     - Read and analyzed `demostration/utilities_ccm.py`.
     - Updated `chronus_causus/todo.md` with CCM sub-tasks.
+- **Commit:** `feat: Initial structure for CCMDiscoverer` (branch `feat/ccm-discoverer-init`)
+
+## Session: 2024-07-25 (Continued)
+- **User Request:** Continue CCM implementation.
+- **Agent Actions:**
+    - Set new plan for updating `CCMDiscoverer.__init__` and starting `fit` method.
+    - Updated `CCMDiscoverer.__init__` with new parameters (`split_percent`, `max_lib_size_iter`, `convergence_error_num`, `convergence_threshold`).
+    - Implemented initial part of `CCMDiscoverer.fit()`: input validation, time series embedding, feature pair iteration, and train/test splitting.
+    - Updated `chronus_causus/todo.md` to reflect progress.
