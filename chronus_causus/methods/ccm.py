@@ -257,7 +257,7 @@ class CCMDiscoverer: # Could inherit from BaseEstimator later
                     error_1.append(10.0 if math.isnan(err_val) or np.isinf(err_val) else err_val)
 
                 if np.max(error_1) < self.convergence_threshold and sc1[-1] >= 1e-4:
-                    sc_1 = (sc1[-1] + sc1[-2] + sc1[-3]) / 3
+                    sc_1 = np.mean(sc1[-3:])
 
             sc_2 = 0.
             if len(sc2) >= self.convergence_error_num:
