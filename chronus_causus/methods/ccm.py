@@ -267,7 +267,7 @@ class CCMDiscoverer: # Could inherit from BaseEstimator later
                     error_2.append(10.0 if math.isnan(err_val) or np.isinf(err_val) else err_val)
 
                 if np.max(error_2) < self.convergence_threshold and sc2[-1] >= 1e-4:
-                    sc_2 = (sc2[-1] + sc2[-2] + sc2[-3]) / 3
+                    sc_2 = np.mean(sc2[-3:])
 
 
             # Populate causal matrix based on converged scores
