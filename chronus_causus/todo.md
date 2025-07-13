@@ -18,7 +18,10 @@
         - [X] Create `nte.py` with class structure.
         - [X] Re-implement core logic from `demostration/utilities_nte.py`.
         - [X] Add unit tests for `NTEDiscoverer`.
-    - [ ] PCMCI+: Implement `PCMCIDiscoverer`
+    - [X] **PCMCI+: Implement `PCMCIDiscoverer`**
+        - [X] Create `pcmci.py` with class structure.
+        - [X] Implement core logic from `demostration/utilities_pcmciplus.py`.
+        - [X] Add unit tests for `PCMCIDiscoverer`.
     - [ ] GC: Implement `GCDiscoverer`
 - [ ] **Phase 2: Ensemble Logic**
     - [ ] L1 Ensembler
