@@ -44,6 +44,7 @@ class CCMDiscoverer: # Could inherit from BaseEstimator later
                  max_lib_size_iter: int = 40,
                  convergence_error_num: int = 8,
                  convergence_threshold: float = 0.03,
+                 threshold: float = 0.0,
                  **kwargs):
         """
         Initialize the CCMDiscoverer.
@@ -59,6 +60,7 @@ class CCMDiscoverer: # Could inherit from BaseEstimator later
                                          calculating relative error to check convergence.
             convergence_threshold (float): The threshold for relative error to determine
                                            if CCM scores have converged.
+            threshold (float): The boundary value to filter the causation relationships.
             **kwargs: Additional keyword arguments (currently unused).
         """
         self.lag = lag
@@ -67,6 +69,7 @@ class CCMDiscoverer: # Could inherit from BaseEstimator later
         self.max_lib_size_iter = max_lib_size_iter
         self.convergence_error_num = convergence_error_num
         self.convergence_threshold = convergence_threshold
+        self.threshold = threshold
 
         self.causal_matrix_ = None
         self.feature_names_in_ = None
@@ -245,50 +248,44 @@ class CCMDiscoverer: # Could inherit from BaseEstimator later
             # sc2: X1 -> X2 (how well X2_test is predicted using X1_train library)
             sc1, sc2 = ccm_instance.score()
 
-            # Convergence Check
-            final_sc1 = 0.0
+            # Convergence Check, adapted from demonstration code
+            sc_1 = 0.
             if len(sc1) >= self.convergence_error_num:
-                errors1 = []
+                error_1 = []
                 for j in range(self.convergence_error_num - 1):
                     err_val = self._error(sc1[-(j + 1)], sc1[-(j + 2)])
-                    errors1.append(10.0 if math.isnan(err_val) or np.isinf(err_val) else err_val)
+                    error_1.append(10.0 if math.isnan(err_val) or np.isinf(err_val) else err_val)
 
-                if np.max(errors1) < self.convergence_threshold and sc1[-1] >= 1e-4:
-                    final_sc1 = np.mean(sc1[-(self.convergence_error_num // 2):]) # Avg last half of convergence window
-                    # Original demo used last 3: (sc1[-1] + sc1[-2] + sc1[-3]) / 3
-                    # Using a portion of convergence_error_num for averaging might be more robust.
-                    # For simplicity and consistency with demo, let's use last 3 if available, else fewer.
-                    num_avg_points1 = min(3, len(sc1))
-                    final_sc1 = np.mean(sc1[-num_avg_points1:])
+                if np.max(error_1) < self.convergence_threshold and sc1[-1] >= 1e-4:
+                    sc_1 = (sc1[-1] + sc1[-2] + sc1[-3]) / 3
 
-
-            final_sc2 = 0.0
+            sc_2 = 0.
             if len(sc2) >= self.convergence_error_num:
-                errors2 = []
+                error_2 = []
                 for j in range(self.convergence_error_num - 1):
                     err_val = self._error(sc2[-(j + 1)], sc2[-(j + 2)])
-                    errors2.append(10.0 if math.isnan(err_val) or np.isinf(err_val) else err_val)
+                    error_2.append(10.0 if math.isnan(err_val) or np.isinf(err_val) else err_val)
 
-                if np.max(errors2) < self.convergence_threshold and sc2[-1] >= 1e-4:
-                    num_avg_points2 = min(3, len(sc2))
-                    final_sc2 = np.mean(sc2[-num_avg_points2:])
+                if np.max(error_2) < self.convergence_threshold and sc2[-1] >= 1e-4:
+                    sc_2 = (sc2[-1] + sc2[-2] + sc2[-3]) / 3
+
 
             # Populate causal matrix based on converged scores
             # sc1 relates to X2 -> X1 (effect_idx=feat_idx1, cause_idx=feat_idx2)
             # sc2 relates to X1 -> X2 (effect_idx=feat_idx2, cause_idx=feat_idx1)
-            if final_sc1 > final_sc2 and final_sc1 > 0:
-                self.causal_matrix_[feat_idx1, feat_idx2] = round(final_sc1, 4)
-            elif final_sc2 > final_sc1 and final_sc2 > 0:
-                self.causal_matrix_[feat_idx2, feat_idx1] = round(final_sc2, 4)
+            if sc_1 > sc_2 and sc_1 > self.threshold:
+                self.causal_matrix_[feat_idx1, feat_idx2] = round(sc_1, 4)
+            elif sc_2 > sc_1 and sc_2 > self.threshold:
+                self.causal_matrix_[feat_idx2, feat_idx1] = round(sc_2, 4)
 
             # If scores are equal and positive, or one is zero, no causal link is asserted here by this logic.
             # The original demo code implies this exclusivity.
 
-            # print(f"Processed pair: ({self.feature_names_in_[feat_idx1]}, {self.feature_names_in_[feat_idx2]})")
-            # print(f"  Scores raw sc1: {sc1}, sc2: {sc2}")
-            # print(f"  Converged sc1: {final_sc1}, Converged sc2: {final_sc2}")
-            # print(f"  Updated causal_matrix_[{feat_idx1}, {feat_idx2}]: {self.causal_matrix_[feat_idx1, feat_idx2]}")
-            # print(f"  Updated causal_matrix_[{feat_idx2}, {feat_idx1}]: {self.causal_matrix_[feat_idx2, feat_idx1]}")
+            print(f"Processed pair: ({self.feature_names_in_[feat_idx1]}, {self.feature_names_in_[feat_idx2]})")
+            print(f"  Scores raw sc1: {sc1}, sc2: {sc2}")
+            print(f"  Converged sc1: {sc_1}, Converged sc2: {sc_2}")
+            print(f"  Updated causal_matrix_[{feat_idx1}, {feat_idx2}]: {self.causal_matrix_[feat_idx1, feat_idx2]}")
+            print(f"  Updated causal_matrix_[{feat_idx2}, {feat_idx1}]: {self.causal_matrix_[feat_idx2, feat_idx1]}")
 
 
         return self

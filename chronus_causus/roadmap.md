@@ -29,6 +29,7 @@ This document outlines the high-level implementation plan for the `chronus_causu
         *   `fit(self, X_partition, feature_names=None)`: Computes causal matrix for a single data partition. Stores result (e.g., `self.causal_matrix_`).
     3.  **Adapt Existing Code:** Refactor logic from `demostration/utilities_*.py` and `CPU_TE.py/GPU_TE.py`.
     4.  **Independent Usability:** Ensure classes can be used standalone.
+    5.  **Refinement and Validation:** Improve the robustness of the base methods. For example, the current CCM implementation is not reliable and should be improved, possibly with surrogate data testing.
 
 **Phase 2: Ensemble Logic**
 1.  **L1 Ensembler (`chronus_causus/ensemble/l1_ensemble.py`):**
