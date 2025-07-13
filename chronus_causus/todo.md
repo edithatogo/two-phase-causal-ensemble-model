@@ -26,9 +26,9 @@
         - [X] Create `gc.py` with class structure.
         - [X] Implement core logic from `demostration/utilities_gc.py`.
         - [X] Add unit tests for `GCDiscoverer`.
-- [ ] **Phase 2: Ensemble Logic**
-    - [ ] L1 Ensembler
-    - [ ] L2 Ensembler / `CausalEnsemble` class
+- [X] **Phase 2: Ensemble Logic**
+    - [X] L1 Ensembler
+    - [X] L2 Ensembler / `CausalEnsemble` class
 - [ ] **Phase 3: Utilities & Supporting Modules**
     - [ ] Data Preprocessing
     - [ ] Partitioning

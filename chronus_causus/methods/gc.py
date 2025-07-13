@@ -95,12 +95,13 @@ class GCDiscoverer(BaseEstimator):
                 if c == r:
                     continue
                 if df_gc.loc[r, c] < self.signif:
-                    # VAR model
-                    model = VAR(df[[r,c]])
-                    res = model.fit(maxlags=self.max_lag)
-                    pred = res.forecast(y=df[[r,c]].values[-self.max_lag:], steps=self.max_lag)
-                    corr, _ = scipy.stats.pearsonr(df[r][-self.max_lag:], pred[:,0])
-                    df_corr.loc[r, c] = round(abs(corr), 4) if abs(corr) > self.threshold else 0.
+                    if len(df[r]) > self.max_lag:
+                        # VAR model
+                        model = VAR(df[[r,c]])
+                        res = model.fit(maxlags=self.max_lag)
+                        pred = res.forecast(y=df[[r,c]].values[-self.max_lag:], steps=self.max_lag)
+                        corr, _ = scipy.stats.pearsonr(df[r][-self.max_lag:], pred[:,0])
+                        df_corr.loc[r, c] = round(abs(corr), 4) if abs(corr) > self.threshold else 0.
 
         for c in df_corr.columns:
             for r in df_corr.index:
