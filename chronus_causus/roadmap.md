@@ -18,7 +18,7 @@ This document outlines the high-level implementation plan for the `chronus_causu
     *   `LICENSE` (Apache 2.0, already created within `chronus_causus/`).
 3.  **Testing Framework:**
     *   Set up `pytest`.
-4.  **Dependency Management:**
+4.  **Dependency Management:** (Completed: All listed dependencies added to `pyproject.toml`)
     *   Define dependencies (e.g., `numpy`, `pandas`, `scikit-learn`, `statsmodels`, `tigramite`, `skccm`, `networkx`, `matplotlib`, `scipy`, `numba`).
 
 **Phase 1: Base Causal Discovery Algorithms**
