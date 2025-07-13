@@ -1,0 +1,77 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "chronus_causus"
+version = "0.1.0"
+description = "A Python library for timeseries causal discovery using an ensemble model."
+authors = [
+  { name="[Your Name/Organization Name]", email="[your_email@example.com]" },
+]
+license = { file = "LICENSE" }
+readme = "README.md" # Assuming a README will be created in chronus_causus/
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "numpy>=1.20",
+    "pandas>=1.3",
+    "scikit-learn>=1.0",
+    # Core dependencies for specific methods will be added progressively:
+    # "statsmodels",
+    # "tigramite", # May require special installation handling
+    # "skccm",
+    # "numba", # For TE/NTE
+    # "scipy", # For various scientific calculations
+    # For plotting and graph analysis:
+    # "matplotlib",
+    # "networkx",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "ruff", # For linting
+]
+# gpu = ["cupy"] # Example if GPU support for NTE requires specific packages
+
+[project.urls]
+Homepage = "[Link to your project homepage/repository]"
+Documentation = "[Link to your documentation]"
+Repository = "[Link to your project repository]"
+
+[tool.setuptools.packages.find]
+where = ["."] # searches in the current directory by default.
+include = ["chronus_causus*"]
+exclude = ["chronus_causus.tests*"] # Exclude tests from the wheel if they are not meant to be installed
+
+[tool.ruff]
+# Standard Ruff configuration can go here
+line-length = 88
+select = ["E", "F", "W", "I", "UP", "PL", "T20"] # Common selections
+ignore = []
+
+# Example: If you want to ensure __init__.py files are present in subdirectories for packaging
+# [tool.setuptools.package-data]
+# "chronus_causus" = ["py.typed", "**/*.py"] # Example, adjust as needed
+# "chronus_causus.methods" = ["*.py"]
+# ... and so on for other subpackages
+# However, find.packages with include should handle .py files correctly.
+# py.typed is for type checkers if you add type hints.
+
+# Note: The author name/email and project URLs are placeholders.
+# These should be updated with actual information.
+# The tigramite dependency often requires manual installation steps for its GSL dependency,
+# which should be noted in the project's installation instructions.
