@@ -29,11 +29,11 @@
 - [X] **Phase 2: Ensemble Logic**
     - [X] L1 Ensembler
     - [X] L2 Ensembler / `CausalEnsemble` class
-- [ ] **Phase 3: Utilities & Supporting Modules**
-    - [ ] Data Preprocessing
-    - [ ] Partitioning
-    - [ ] Evaluation
-    - [ ] Plotting
+- [X] **Phase 3: Utilities & Supporting Modules**
+    - [X] Data Preprocessing
+    - [X] Partitioning
+    - [X] Evaluation
+    - [X] Plotting
 - [ ] **Phase 4: Testing and Documentation**
     - [ ] Unit & Integration Tests
     - [ ] Examples
