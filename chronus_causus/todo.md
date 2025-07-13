@@ -22,7 +22,10 @@
         - [X] Create `pcmci.py` with class structure.
         - [X] Implement core logic from `demostration/utilities_pcmciplus.py`.
         - [X] Add unit tests for `PCMCIDiscoverer`.
-    - [ ] GC: Implement `GCDiscoverer`
+    - [X] **GC: Implement `GCDiscoverer`**
+        - [X] Create `gc.py` with class structure.
+        - [X] Implement core logic from `demostration/utilities_gc.py`.
+        - [X] Add unit tests for `GCDiscoverer`.
 - [ ] **Phase 2: Ensemble Logic**
     - [ ] L1 Ensembler
     - [ ] L2 Ensembler / `CausalEnsemble` class
